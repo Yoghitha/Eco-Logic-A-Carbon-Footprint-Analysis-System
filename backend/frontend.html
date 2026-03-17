@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Logic • Smart Carbon Footprint Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fixed Chart.js loading -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        :root {
+            --primary: #10b981;
+        }
+        
+        .tail-container {
+            font-family: 'Inter', system_ui, sans-serif;
+        }
+        
+        .logo-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 25px #22c55e,
+                        0 0 50px rgba(34, 197, 94, 0.5);
+        }
+
+        .hero-bg {
+            background: linear-gradient(135deg, #86efac 0%, #f0fdf4 50%, #ecfdf5 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(134, 239, 172, 0.4) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(163, 230, 187, 0.3) 0%, transparent 50%);
+            animation: subtleMove 25s ease infinite;
+        }
+
+        @keyframes subtleMove {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -30px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        .float-icon {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-30px); }
+        }
+
+        .section-fade {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .section-fade.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-15px) scale(1.03);
+            box-shadow: 0 25px 50px -12px rgb(16 185 129 / 0.3);
+        }
+
+        .progress-bar {
+            transition: width 2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: #22c55e;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:after {
+            width: 100%;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: particleFloat 15s linear infinite;
+        }
+        
+        /* Fixed canvas styles */
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            max-height: 320px;
+        }
+    </style>
+</head>
+<body class="tail-container bg-gradient-to-br from-emerald-50 via-white to-emerald-100 text-emerald-950 overflow-x-hidden">
+    
+    <!-- NAVBAR -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/30">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
+            <!-- Logo -->
+            <div onclick="navigateTo('home')" class="flex items-center gap-x-3 cursor-pointer group">
+                <div class="w-11 h-11 bg-emerald-600 rounded-2xl flex items-center justify-center neon-glow">
+                    <i class="fa-solid fa-leaf text-white text-3xl"></i>
+                </div>
+                <div>
+                    <span class="logo-font text-3xl font-semibold tracking-tighter text-emerald-800">Eco-Logic</span>
+                </div>
+            </div>
+
+            <!-- Menu -->
+            <div class="hidden md:flex items-center gap-x-9 text-base font-medium">
+                <a onclick="navigateTo('home')" class="nav-link cursor-pointer text-emerald-700 hover:text-emerald-900">Home</a>
+                <a onclick="navigateTo('calculator')" class="nav-link cursor-pointer text-emerald-700 hover:text-emerald-900">Calculator</a>
+                <a onclick="navigateTo('dashboard')" class="nav-link cursor-pointer text-emerald-700 hover:text-emerald-900">Dashboard</a>
+                <a onclick="navigateTo('tips')" class="nav-link cursor-pointer text-emerald-700 hover:text-emerald-900">Eco Tips</a>
+                <a onclick="navigateTo('about')" class="nav-link cursor-pointer text-emerald-700 hover:text-emerald-900">About</a>
+                <a onclick="navigateTo('contact')" class="nav-link cursor-pointer text-emerald-700 hover:text-emerald-900">Contact</a>
+            </div>
+
+            <div class="flex items-center gap-x-4">
+                <button onclick="navigateTo('calculator')" 
+                        class="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-3xl font-semibold text-sm flex items-center gap-x-2 transition-all neon-glow">
+                    <i class="fa-solid fa-calculator"></i>
+                    START ANALYSIS
+                </button>
+                
+                <!-- Mobile hamburger -->
+                <button id="mobile-menu-btn" class="md:hidden text-3xl text-emerald-700">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-emerald-950/90 z-40 pt-20">
+        <div class="flex flex-col items-center gap-y-8 text-2xl text-white font-medium">
+            <a onclick="navigateTo('home');closeMobileMenu()" class="cursor-pointer">Home</a>
+            <a onclick="navigateTo('calculator');closeMobileMenu()" class="cursor-pointer">Calculator</a>
+            <a onclick="navigateTo('dashboard');closeMobileMenu()" class="cursor-pointer">Dashboard</a>
+            <a onclick="navigateTo('tips');closeMobileMenu()" class="cursor-pointer">Eco Tips</a>
+            <a onclick="navigateTo('about');closeMobileMenu()" class="cursor-pointer">About</a>
+            <a onclick="navigateTo('contact');closeMobileMenu()" class="cursor-pointer">Contact</a>
+        </div>
+    </div>
+
+    <!-- PAGE CONTAINER -->
+    <div class="pt-24">
+
+        <!-- HOME PAGE -->
+        <div id="home-page" class="page">
+            
+            <!-- HERO -->
+            <section class="hero-bg min-h-screen flex items-center relative">
+                <!-- Floating particles -->
+                <div id="hero-particles" class="absolute inset-0 pointer-events-none"></div>
+                
+                <!-- Floating icons -->
+                <div class="absolute left-10 top-40 float-icon hidden lg:block">
+                    <i class="fa-solid fa-tree text-7xl text-emerald-300/70"></i>
+                </div>
+                <div class="absolute right-20 bottom-40 float-icon" style="animation-delay: 2s">
+                    <i class="fa-solid fa-leaf text-6xl text-emerald-300/70"></i>
+                </div>
+                <div class="absolute left-1/3 top-1/3 float-icon" style="animation-delay: 4s">
+                    <i class="fa-solid fa-globe text-5xl text-emerald-300/70"></i>
+                </div>
+
+                <div class="max-w-7xl mx-auto px-8 grid md:grid-cols-2 gap-16 items-center">
+                    <div class="space-y-8">
+                        <div class="inline-flex items-center gap-x-3 px-6 py-2 glass rounded-3xl text-sm font-medium text-emerald-700">
+                            <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                            AI-POWERED • REAL-TIME • SUSTAINABLE
+                        </div>
+                        
+                        <h1 class="text-7xl md:text-8xl font-semibold tracking-tighter logo-font leading-none text-emerald-950">
+                            ECO-LOGIC
+                        </h1>
+                        
+                        <p class="text-4xl font-medium text-emerald-700">Smart Carbon Footprint Analysis System</p>
+                        
+                        <p class="max-w-lg text-xl text-emerald-700/80">
+                            Track, understand, and reduce your carbon footprint with intelligent AI insights and beautiful visualizations. 
+                            Join the movement for a greener tomorrow.
+                        </p>
+                        
+                        <div class="flex flex-wrap gap-4">
+                            <button onclick="navigateTo('calculator')" 
+                                    class="group px-10 py-6 bg-emerald-600 hover:bg-emerald-700 text-white text-xl font-semibold rounded-3xl flex items-center gap-x-4 transition-all neon-glow">
+                                START CARBON ANALYSIS
+                                <i class="fa-solid fa-arrow-right group-active:rotate-45 transition-transform"></i>
+                            </button>
+                            
+                            <button onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})" 
+                                    class="px-10 py-6 border-2 border-emerald-600 hover:bg-white/50 text-emerald-700 text-xl font-semibold rounded-3xl transition-all">
+                                LEARN MORE
+                            </button>
+                        </div>
+                        
+                        <!-- Trust bar -->
+                        <div class="flex items-center gap-x-8 pt-8">
+                            <div class="flex -space-x-4">
+                                <div class="w-9 h-9 bg-emerald-200 rounded-2xl border-2 border-white flex items-center justify-center text-xs">🌍</div>
+                                <div class="w-9 h-9 bg-emerald-200 rounded-2xl border-2 border-white flex items-center justify-center text-xs">🌱</div>
+                                <div class="w-9 h-9 bg-emerald-200 rounded-2xl border-2 border-white flex items-center justify-center text-xs">🌳</div>
+                            </div>
+                            <div class="text-sm text-emerald-600">
+                                Trusted by <span class="font-semibold">12,489</span> eco-conscious users
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hero Visual -->
+                    <div class="relative flex justify-center">
+                        <div class="relative w-full max-w-md">
+                            <!-- Earth illustration -->
+                            <div class="w-96 h-96 mx-auto relative">
+                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-[100px] shadow-2xl neon-glow flex items-center justify-center">
+                                    <div class="text-[280px] leading-none">🌍</div>
+                                </div>
+                                
+                                <!-- Orbiting leaves -->
+                                <div class="absolute -top-8 left-12 text-6xl animate-[spin_20s_linear_infinite]">🍃</div>
+                                <div class="absolute top-12 right-8 text-5xl animate-[spin_15s_linear_infinite_reverse]">🌿</div>
+                                <div class="absolute bottom-16 left-20 text-4xl animate-[spin_25s_linear_infinite]">🌱</div>
+                            </div>
+                            
+                            <!-- Stats badge -->
+                            <div class="glass absolute -bottom-6 -right-6 px-8 py-6 rounded-3xl shadow-2xl">
+                                <div class="flex items-center gap-x-6">
+                                    <div>
+                                        <div id="hero-co2-counter" class="text-5xl font-bold text-emerald-700">4.2</div>
+                                        <div class="text-sm text-emerald-600">tons CO₂ saved this month</div>
+                                    </div>
+                                    <div class="h-14 w-px bg-emerald-300"></div>
+                                    <div class="text-6xl">🌳</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Scroll indicator -->
+                <div class="absolute bottom-10 left-1/2 flex flex-col items-center gap-y-2 text-emerald-600">
+                    <div class="text-xs tracking-[3px]">SCROLL FOR IMPACT</div>
+                    <i class="fa-solid fa-chevron-down animate-bounce text-2xl"></i>
+                </div>
+            </section>
+
+            <!-- FEATURES -->
+            <section id="features" class="py-24 bg-white">
+                <div class="max-w-7xl mx-auto px-8">
+                    <div class="text-center mb-16">
+                        <div class="inline px-5 py-2 bg-emerald-100 text-emerald-700 rounded-3xl text-sm font-medium">POWERFUL FEATURES</div>
+                        <h2 class="text-5xl font-semibold mt-4 tracking-tight">Everything you need to go green</h2>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <!-- Card 1 -->
+                        <div onclick="navigateTo('calculator')" class="card-hover glass rounded-3xl p-8 cursor-pointer group">
+                            <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">📊</div>
+                            <h3 class="text-2xl font-semibold mb-2">Carbon Footprint Calculator</h3>
+                            <p class="text-emerald-600">Instantly calculate your personal or business emissions from electricity, travel, cooking &amp; diet.</p>
+                        </div>
+                        
+                        <!-- Card 2 -->
+                        <div onclick="navigateTo('dashboard')" class="card-hover glass rounded-3xl p-8 cursor-pointer group">
+                            <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">📈</div>
+                            <h3 class="text-2xl font-semibold mb-2">Emission Dashboard</h3>
+                            <p class="text-emerald-600">Real-time interactive charts and live tracking of your carbon journey.</p>
+                        </div>
+                        
+                        <!-- Card 3 -->
+                        <div class="card-hover glass rounded-3xl p-8 cursor-pointer group">
+                            <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">📅</div>
+                            <h3 class="text-2xl font-semibold mb-2">Sustainability Tracking</h3>
+                            <p class="text-emerald-600">Monthly progress reports and historical trends with beautiful timelines.</p>
+                        </div>
+                        
+                        <!-- Card 4 -->
+                        <div class="card-hover glass rounded-3xl p-8 cursor-pointer group">
+                            <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">💡</div>
+                            <h3 class="text-2xl font-semibold mb-2">Personalized Eco Tips</h3>
+                            <p class="text-emerald-600">AI-generated daily actions tailored to your lifestyle and location.</p>
+                        </div>
+                        
+                        <!-- Card 5 -->
+                        <div class="card-hover glass rounded-3xl p-8 cursor-pointer group">
+                            <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">🌍</div>
+                            <h3 class="text-2xl font-semibold mb-2">Environmental Awareness</h3>
+                            <p class="text-emerald-600">Educational modules and global impact comparisons.</p>
+                        </div>
+                        
+                        <!-- Card 6 -->
+                        <div onclick="navigateTo('dashboard')" class="card-hover glass rounded-3xl p-8 cursor-pointer group">
+                            <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition">📉</div>
+                            <h3 class="text-2xl font-semibold mb-2">Data Visualization</h3>
+                            <p class="text-emerald-600">Stunning animated charts and exportable reports.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- CALCULATOR PAGE -->
+        <div id="calculator-page" class="page hidden">
+            <section class="min-h-screen bg-gradient-to-b from-emerald-50 to-white py-16">
+                <div class="max-w-4xl mx-auto px-8">
+                    <div class="text-center mb-12">
+                        <h1 class="text-6xl font-bold tracking-tighter">Carbon Footprint Calculator</h1>
+                        <p class="text-2xl text-emerald-600 mt-3">Answer a few questions • Get instant results</p>
+                    </div>
+                    
+                    <div class="glass rounded-3xl p-12 shadow-2xl">
+                        <form id="calc-form" onsubmit="calculateFootprint(event)" class="space-y-10">
+                            
+                            <!-- Electricity -->
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                                <div class="md:col-span-4 flex items-center gap-x-4">
+                                    <div class="text-4xl">⚡</div>
+                                    <div>
+                                        <div class="font-medium">Monthly Electricity</div>
+                                        <div class="text-sm text-emerald-600">in kWh</div>
+                                    </div>
+                                </div>
+                                <div class="md:col-span-8">
+                                    <input id="elec" type="number" value="250" 
+                                           class="w-full bg-white/70 focus:bg-white border border-emerald-200 focus:border-emerald-500 rounded-2xl px-8 py-6 text-3xl outline-none transition-all">
+                                </div>
+                            </div>
+                            
+                            <!-- Travel -->
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                                <div class="md:col-span-4 flex items-center gap-x-4">
+                                    <div class="text-4xl">🚗</div>
+                                    <div>
+                                        <div class="font-medium">Daily Travel Distance</div>
+                                        <div class="text-sm text-emerald-600">in km (car/moto)</div>
+                                    </div>
+                                </div>
+                                <div class="md:col-span-8">
+                                    <input id="travel" type="number" value="35" 
+                                           class="w-full bg-white/70 focus:bg-white border border-emerald-200 focus:border-emerald-500 rounded-2xl px-8 py-6 text-3xl outline-none transition-all">
+                                </div>
+                            </div>
+                            
+                            <!-- LPG -->
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                                <div class="md:col-span-4 flex items-center gap-x-4">
+                                    <div class="text-4xl">🔥</div>
+                                    <div>
+                                        <div class="font-medium">Monthly LPG Usage</div>
+                                        <div class="text-sm text-emerald-600">in kg</div>
+                                    </div>
+                                </div>
+                                <div class="md:col-span-8">
+                                    <input id="lpg" type="number" value="12" 
+                                           class="w-full bg-white/70 focus:bg-white border border-emerald-200 focus:border-emerald-500 rounded-2xl px-8 py-6 text-3xl outline-none transition-all">
+                                </div>
+                            </div>
+                            
+                            <!-- Diet -->
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                                <div class="md:col-span-4 flex items-center gap-x-4">
+                                    <div class="text-4xl">🍽️</div>
+                                    <div>
+                                        <div class="font-medium">Your Diet Type</div>
+                                    </div>
+                                </div>
+                                <div class="md:col-span-8">
+                                    <select id="diet" 
+                                            class="w-full bg-white/70 focus:bg-white border border-emerald-200 focus:border-emerald-500 rounded-2xl px-8 py-6 text-3xl outline-none transition-all">
+                                        <option value="2.8">Carnivore / Heavy Meat</option>
+                                        <option value="2.2" selected>Omnivore</option>
+                                        <option value="1.6">Vegetarian</option>
+                                        <option value="1.0">Vegan</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button type="submit"
+                                    class="w-full py-8 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-2xl font-bold rounded-3xl flex items-center justify-center gap-x-4 hover:scale-105 transition-all neon-glow">
+                                <i class="fa-solid fa-calculator"></i>
+                                CALCULATE MY FOOTPRINT
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Result area (hidden initially) -->
+                    <div id="calc-result" class="hidden mt-12 glass rounded-3xl p-10">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-emerald-700 mb-2">Your Estimated Annual Footprint</div>
+                            <div id="total-co2" class="text-8xl font-bold text-emerald-800">3.8</div>
+                            <div class="text-emerald-600 text-2xl">tons of CO₂e per year</div>
+                        </div>
+                        
+                        <div onclick="navigateTo('dashboard')" 
+                             class="mt-10 text-center bg-emerald-700 text-white py-5 rounded-3xl cursor-pointer hover:bg-emerald-800 transition">
+                            View Full Interactive Dashboard →
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- DASHBOARD PAGE -->
+        <div id="dashboard-page" class="page hidden py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-8">
+                <div class="flex justify-between items-end mb-12">
+                    <div>
+                        <h1 class="text-6xl font-bold tracking-tighter">Your Impact Dashboard</h1>
+                        <p id="dash-date" class="text-emerald-600 text-xl">March 2026 • Real-time data</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-emerald-600">ECO SCORE</div>
+                        <div id="eco-score" class="text-8xl font-bold text-emerald-600">82</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    
+                    <!-- Pie Chart -->
+                    <div class="lg:col-span-7 glass rounded-3xl p-10">
+                        <h3 class="font-medium text-xl mb-6 flex items-center gap-x-3">
+                            <span>Emission Breakdown</span>
+                            <i class="fa-solid fa-chart-pie text-emerald-500"></i>
+                        </h3>
+                        <div style="position: relative; height: 320px; width: 100%;">
+                            <canvas id="pie-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Bar Chart -->
+                    <div class="lg:col-span-5 glass rounded-3xl p-10">
+                        <h3 class="font-medium text-xl mb-6">Source Comparison</h3>
+                        <div style="position: relative; height: 320px; width: 100%;">
+                            <canvas id="bar-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Trees Counter -->
+                    <div class="lg:col-span-4 glass rounded-3xl p-10 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-x-4">
+                                <span class="text-6xl">🌳</span>
+                                <div>
+                                    <div class="text-5xl font-bold" id="trees-count">187</div>
+                                    <div class="text-emerald-600">Trees needed to offset</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-xs uppercase tracking-widest text-emerald-500">One mature tree absorbs ~22 kg CO₂/year</div>
+                    </div>
+                    
+                    <!-- Progress -->
+                    <div class="lg:col-span-8 glass rounded-3xl p-10">
+                        <div class="flex justify-between mb-8">
+                            <div class="font-medium">Monthly Progress</div>
+                            <div class="text-emerald-500 font-medium">−18% from last month</div>
+                        </div>
+                        
+                        <div class="space-y-7">
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>Electricity</span>
+                                    <span class="font-medium">41%</span>
+                                </div>
+                                <div class="h-4 bg-emerald-100 rounded-3xl overflow-hidden">
+                                    <div id="prog1" class="progress-bar h-full w-0 bg-emerald-500 rounded-3xl"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>Transport</span>
+                                    <span class="font-medium">29%</span>
+                                </div>
+                                <div class="h-4 bg-emerald-100 rounded-3xl overflow-hidden">
+                                    <div id="prog2" class="progress-bar h-full w-0 bg-emerald-500 rounded-3xl"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span>Cooking &amp; LPG</span>
+                                    <span class="font-medium">17%</span>
+                                </div>
+                                <div class="h-4 bg-emerald-100 rounded-3xl overflow-hidden">
+                                    <div id="prog3" class="progress-bar h-full w-0 bg-emerald-500 rounded-3xl"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ECO TIPS PAGE -->
+        <div id="tips-page" class="page hidden py-20 bg-gradient-to-br from-emerald-50 to-white">
+            <div class="max-w-6xl mx-auto px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-5xl font-bold">Personalized Eco Tips</h2>
+                    <p class="text-emerald-600 mt-4 text-2xl">Small changes. Big impact.</p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="glass rounded-3xl p-8 card-hover">
+                        <div class="text-6xl mb-6">💡</div>
+                        <h4 class="text-2xl font-semibold mb-4">Switch to LED bulbs</h4>
+                        <p class="text-emerald-600">Can save up to 80% electricity. Replace just 5 bulbs and cut 120 kg CO₂/year.</p>
+                    </div>
+                    <div class="glass rounded-3xl p-8 card-hover">
+                        <div class="text-6xl mb-6">🚲</div>
+                        <h4 class="text-2xl font-semibold mb-4">Use public transport 3 days/week</h4>
+                        <p class="text-emerald-600">Reduces transport emissions by 45%. Tamil Nadu buses are already electric in many routes!</p>
+                    </div>
+                    <div class="glass rounded-3xl p-8 card-hover">
+                        <div class="text-6xl mb-6">🥗</div>
+                        <h4 class="text-2xl font-semibold mb-4">Go meat-free twice a week</h4>
+                        <p class="text-emerald-600">Cuts diet emissions by 30%. Try local millets and greens from your district.</p>
+                    </div>
+                    <div class="glass rounded-3xl p-8 card-hover">
+                        <div class="text-6xl mb-6">🌱</div>
+                        <h4 class="text-2xl font-semibold mb-4">Plant a tree this month</h4>
+                        <p class="text-emerald-600">Neem or Mango saplings are perfect for Tamil Nadu climate. Offset 22 kg CO₂ annually.</p>
+                    </div>
+                    <div class="glass rounded-3xl p-8 card-hover">
+                        <div class="text-6xl mb-6">🛍️</div>
+                        <h4 class="text-2xl font-semibold mb-4">Refuse single-use plastic</h4>
+                        <p class="text-emerald-600">Carry your own cloth bag and steel bottle. Saves 1.5 kg plastic waste per month.</p>
+                    </div>
+                    <div class="glass rounded-3xl p-8 card-hover">
+                        <div class="text-6xl mb-6">🔌</div>
+                        <h4 class="text-2xl font-semibold mb-4">Unplug devices at night</h4>
+                        <p class="text-emerald-600">Phantom load can be 10% of your bill. Simple habit = big savings.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABOUT PAGE -->
+        <div id="about-page" class="page hidden py-24 bg-white">
+            <div class="max-w-4xl mx-auto px-8">
+                <div class="prose prose-lg text-emerald-800">
+                    <h1 class="text-6xl font-bold tracking-tighter text-center mb-16">Our Vision</h1>
+                    
+                    <div class="grid md:grid-cols-2 gap-16">
+                        <div class="space-y-8">
+                            <div class="glass p-10 rounded-3xl">
+                                <div class="uppercase text-xs tracking-widest text-emerald-500 mb-3">VISION</div>
+                                <p class="text-2xl font-medium leading-tight">
+                                    A world where every individual knows exactly how their daily choices affect the planet — and has the tools to change it.
+                                </p>
+                            </div>
+                            
+                            <div class="glass p-10 rounded-3xl">
+                                <div class="uppercase text-xs tracking-widest text-emerald-500 mb-3">MISSION</div>
+                                <p class="text-2xl font-medium leading-tight">
+                                    Make carbon tracking as simple and beautiful as checking the weather.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-emerald-50 border border-emerald-100 rounded-3xl p-12">
+                                <h3 class="font-semibold text-3xl mb-6">Project Objective</h3>
+                                <ul class="space-y-6 text-lg">
+                                    <li class="flex gap-x-4"><span class="text-emerald-400 text-2xl">•</span> Democratize environmental data for Tamil Nadu &amp; India</li>
+                                    <li class="flex gap-x-4"><span class="text-emerald-400 text-2xl">•</span> Use real local emission factors (TNEB grid, Indian transport averages)</li>
+                                    <li class="flex gap-x-4"><span class="text-emerald-400 text-2xl">•</span> Inspire 1 million users to reduce 500,000 tons of CO₂ by 2028</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTACT PAGE -->
+        <div id="contact-page" class="page hidden py-20 bg-gradient-to-br from-emerald-50 to-white">
+            <div class="max-w-2xl mx-auto px-8">
+                <div class="glass rounded-3xl p-12">
+                    <h2 class="text-5xl font-bold text-center mb-10">Get in touch with the Eco-Team</h2>
+                    
+                    <form id="contact-form" onsubmit="submitContact(event)" class="space-y-8">
+                        <input type="text" id="name" placeholder="Your name" 
+                               class="w-full px-8 py-6 rounded-3xl border border-emerald-200 focus:border-emerald-500 bg-white outline-none text-lg">
+                        
+                        <input type="email" id="email" placeholder="you@email.com" 
+                               class="w-full px-8 py-6 rounded-3xl border border-emerald-200 focus:border-emerald-500 bg-white outline-none text-lg">
+                        
+                        <textarea id="message" rows="6" placeholder="How can we help you go greener?" 
+                                  class="w-full px-8 py-6 rounded-3xl border border-emerald-200 focus:border-emerald-500 bg-white outline-none text-lg resize-none"></textarea>
+                        
+                        <button type="submit"
+                                class="w-full py-8 bg-emerald-600 text-white text-2xl rounded-3xl hover:bg-emerald-700 transition neon-glow">
+                            SEND MESSAGE
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="bg-emerald-950 text-emerald-200 py-16">
+        <div class="max-w-7xl mx-auto px-8 grid md:grid-cols-4 gap-12">
+            <div>
+                <div class="flex items-center gap-x-3 mb-6">
+                    <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-leaf text-white"></i>
+                    </div>
+                    <span class="logo-font text-3xl text-white">Eco-Logic</span>
+                </div>
+                <p class="text-emerald-400 text-sm">Built with ❤️ for a sustainable Tamil Nadu and India.</p>
+            </div>
+            
+            <div>
+                <div class="font-medium text-white mb-6">Quick Links</div>
+                <div class="space-y-3 text-sm">
+                    <div onclick="navigateTo('calculator')" class="cursor-pointer hover:text-white">Carbon Calculator</div>
+                    <div onclick="navigateTo('dashboard')" class="cursor-pointer hover:text-white">Live Dashboard</div>
+                    <div onclick="navigateTo('tips')" class="cursor-pointer hover:text-white">Eco Tips</div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="font-medium text-white mb-6">Company</div>
+                <div class="space-y-3 text-sm">
+                    <div onclick="navigateTo('about')" class="cursor-pointer hover:text-white">About Us</div>
+                    <div class="cursor-pointer hover:text-white">Blog</div>
+                    <div class="cursor-pointer hover:text-white">Careers (We're hiring!)</div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="font-medium text-white mb-6">Follow the green wave</div>
+                <div class="flex gap-x-6 text-3xl">
+                    <i onclick="window.open('https://x.com','_blank')" class="fa-brands fa-x-twitter cursor-pointer hover:text-emerald-400"></i>
+                    <i onclick="window.open('https://instagram.com','_blank')" class="fa-brands fa-instagram cursor-pointer hover:text-emerald-400"></i>
+                    <i onclick="window.open('https://linkedin.com','_blank')" class="fa-brands fa-linkedin cursor-pointer hover:text-emerald-400"></i>
+                </div>
+                
+                <div class="mt-12 text-xs text-emerald-500">© 2026 Eco-Logic. Made for Earth.</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // API Base URL
+    const API_BASE = 'http://localhost:3000/api';
+    
+    // Navigation
+    let currentPage = 'home';
+    
+    function navigateTo(page) {
+        // Hide all pages
+        document.querySelectorAll('.page').forEach(p => {
+            p.classList.add('hidden');
+        });
+        
+        // Show target
+        const target = document.getElementById(page + '-page');
+        if (target) {
+            target.classList.remove('hidden');
+            currentPage = page;
+        }
+        
+        // If dashboard, init charts
+        if (page === 'dashboard') {
+            setTimeout(initDashboardCharts, 200);
+            loadDashboardData();
+        }
+        
+        // If tips page, load tips
+        if (page === 'tips') {
+            loadEcoTips();
+        }
+        
+        // If home page, load stats
+        if (page === 'home') {
+            loadGlobalStats();
+        }
+        
+        // Close mobile menu
+        closeMobileMenu();
+        
+        // Scroll to top smoothly
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    function closeMobileMenu() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenu) mobileMenu.classList.add('hidden');
+    }
+    
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-btn')?.addEventListener('click', () => {
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenu.classList.toggle('hidden');
+    });
+    
+    // ============ API FUNCTIONS ============
+    
+    // Calculate carbon footprint
+    async function calculateFootprint(e) {
+        e.preventDefault();
+        
+        const elec = parseFloat(document.getElementById('elec').value) || 0;
+        const travel = parseFloat(document.getElementById('travel').value) || 0;
+        const lpg = parseFloat(document.getElementById('lpg').value) || 0;
+        const dietSelect = document.getElementById('diet');
+        const diet = dietSelect.options[dietSelect.selectedIndex].text;
+        
+        try {
+            const response = await fetch(`${API_BASE}/calculate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    electricity: elec,
+                    travel: travel,
+                    lpg: lpg,
+                    diet: diet
+                })
+            });
+            
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+            
+            // Show result
+            document.getElementById('calc-result').classList.remove('hidden');
+            document.getElementById('total-co2').textContent = data.totalCO2.toFixed(1);
+            
+            // Store for dashboard
+            window.lastCalc = {
+                total: data.totalCO2.toFixed(1),
+                elecPercent: data.electricityPercent,
+                travelPercent: data.travelPercent,
+                lpgPercent: data.lpgPercent,
+                dietPercent: data.dietPercent,
+                treesNeeded: data.treesNeeded,
+                ecoScore: data.ecoScore
+            };
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error calculating footprint. Make sure the backend is running.');
+        }
+    }
+    
+    // Submit contact form
+    async function submitContact(e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+        
+        if (!name || !email || !message) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_BASE}/contact`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, message })
+            });
+            
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+            alert(data.message);
+            document.getElementById('contact-form').reset();
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error sending message. Make sure the backend is running.');
+        }
+    }
+    
+    // Load eco tips
+    async function loadEcoTips() {
+        try {
+            const response = await fetch(`${API_BASE}/tips`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const tips = await response.json();
+            
+            const tipsContainer = document.querySelector('#tips-page .grid');
+            if (tipsContainer) {
+                tipsContainer.innerHTML = tips.map(tip => `
+                    <div class="glass rounded-3xl p-8 card-hover">
+                        <div class="text-6xl mb-6">${tip.icon}</div>
+                        <h4 class="text-2xl font-semibold mb-4">${tip.title}</h4>
+                        <p class="text-emerald-600">${tip.description}</p>
+                    </div>
+                `).join('');
+            }
+        } catch (error) {
+            console.error('Error loading tips:', error);
+        }
+    }
+    
+    // Load global stats
+    async function loadGlobalStats() {
+        try {
+            const response = await fetch(`${API_BASE}/stats`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const stats = await response.json();
+            
+            // Update hero counter
+            const counter = document.getElementById('hero-co2-counter');
+            if (counter) {
+                counter.textContent = (stats.totalCO2Saved / 1000).toFixed(1);
+            }
+            
+            // Update trusted users count
+            const trustElement = document.querySelector('.text-sm.text-emerald-600 .font-semibold');
+            if (trustElement) {
+                trustElement.textContent = stats.totalUsers.toLocaleString();
+            }
+            
+        } catch (error) {
+            console.error('Error loading stats:', error);
+        }
+    }
+    
+    // Load dashboard data
+    async function loadDashboardData() {
+        try {
+            const response = await fetch(`${API_BASE}/date`);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const data = await response.json();
+            
+            const dateElement = document.getElementById('dash-date');
+            if (dateElement) {
+                dateElement.textContent = data.date + ' • Real-time data';
+            }
+        } catch (error) {
+            console.error('Error loading date:', error);
+        }
+    }
+    
+    // Dashboard charts
+    let pieChartInstance = null;
+    let barChartInstance = null;
+    
+    function initDashboardCharts() {
+        if (typeof Chart === 'undefined') {
+            console.log('Waiting for Chart.js...');
+            setTimeout(initDashboardCharts, 100);
+            return;
+        }
+        
+        // Destroy old instances
+        if (pieChartInstance) pieChartInstance.destroy();
+        if (barChartInstance) barChartInstance.destroy();
+        
+        const lastCalc = window.lastCalc || { 
+            total: "4.2", 
+            elecPercent: 48, 
+            travelPercent: 32, 
+            lpgPercent: 15,
+            dietPercent: 5,
+            treesNeeded: 187,
+            ecoScore: 82
+        };
+        
+        // Update trees and score
+        document.getElementById('trees-count').textContent = lastCalc.treesNeeded || 187;
+        document.getElementById('eco-score').textContent = lastCalc.ecoScore || 82;
+        
+        // Get canvas elements
+        const pieCanvas = document.getElementById('pie-chart');
+        const barCanvas = document.getElementById('bar-chart');
+        
+        if (!pieCanvas || !barCanvas) return;
+        
+        // Pie chart
+        pieChartInstance = new Chart(pieCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Electricity', 'Transport', 'Cooking (LPG)', 'Diet'],
+                datasets: [{
+                    data: [
+                        lastCalc.elecPercent || 48,
+                        lastCalc.travelPercent || 32,
+                        lastCalc.lpgPercent || 15,
+                        lastCalc.dietPercent || 5
+                    ],
+                    backgroundColor: ['#10b981', '#34d399', '#4ade80', '#a7f3d0'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+        
+        // Bar chart
+        barChartInstance = new Chart(barCanvas, {
+            type: 'bar',
+            data: {
+                labels: ['Electricity', 'Transport', 'LPG', 'Diet'],
+                datasets: [{
+                    label: 'kg CO₂e/month',
+                    data: [380, 210, 110, 95],
+                    backgroundColor: '#10b981',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+        
+        // Animate progress bars
+        setTimeout(() => {
+            document.getElementById('prog1').style.width = (lastCalc.elecPercent || 48) + '%';
+            document.getElementById('prog2').style.width = (lastCalc.travelPercent || 32) + '%';
+            document.getElementById('prog3').style.width = (lastCalc.lpgPercent || 15) + '%';
+        }, 100);
+    }
+    
+    // Particle system
+    function createParticles() {
+        const container = document.getElementById('hero-particles');
+        if (!container) return;
+        
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = Math.random() * 100 + 'vh';
+            particle.style.animationDuration = (Math.random() * 18 + 12) + 's';
+            particle.style.animationDelay = '-' + Math.random() * 15 + 's';
+            particle.style.opacity = Math.random() * 0.7 + 0.3;
+            container.appendChild(particle);
+        }
+    }
+    
+    // Check if backend is running
+    async function checkBackend() {
+        try {
+            const response = await fetch(`${API_BASE}/health`);
+            if (response.ok) {
+                console.log('✅ Connected to Haskell backend');
+                const data = await response.json();
+                console.log('   ' + data.message);
+            } else {
+                console.warn('⚠️ Backend not responding. Using mock data.');
+            }
+        } catch (error) {
+            console.warn('⚠️ Backend not running. Using mock data.');
+            console.log('   To start backend: cd backend && stack run');
+        }
+    }
+    
+    // Initialize everything
+    function initializeApp() {
+        // Check backend
+        checkBackend();
+        
+        // Show home by default
+        document.getElementById('home-page')?.classList.remove('hidden');
+        
+        // Create floating particles
+        createParticles();
+        
+        // Set mock data for demo
+        window.lastCalc = {
+            total: "3.8",
+            elecPercent: 48,
+            travelPercent: 32,
+            lpgPercent: 15,
+            dietPercent: 5,
+            treesNeeded: 187,
+            ecoScore: 82
+        };
+        
+        // Load initial data
+        loadGlobalStats();
+        
+        console.log('%c🌍 Eco-Logic ready!', 'color:#10b981; font-size:16px');
+    }
+    
+    // Start app when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+        initializeApp();
+    }
+</script>
+</body>
+</html>
