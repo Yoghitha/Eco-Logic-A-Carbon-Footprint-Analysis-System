@@ -1,0 +1,19 @@
+cabal-version: 3.0
+name: eco-logic
+version: 0.1.0.0
+build-type: Simple
+
+executable eco-logic
+  main-is: Main.hs
+  build-depends:
+      base >=4.14 && <5
+    , scotty
+    , aeson
+    , text
+    , time
+    , random
+    , bytestring
+    , http-types
+    , warp
+  hs-source-dirs: .
+  default-language: Haskell2010
